@@ -47,10 +47,21 @@ export const listIssues = wrapToolHandler<z.infer<typeof ListIssuesSchema>>(asyn
   const statuses = await client.findAll(tracker.class.IssueStatus, {})
   const statusMap = new Map(statuses.map((s) => [s._id, s.name]))
 
+  // Resolve labels for all issues in one call
+  const labelRefs = await client.findAll(tags.class.TagReference, { attachedTo: { $in: issues.map((i) => i._id) } })
+  const labelMap = new Map<string, string[]>()
+  for (const ref of labelRefs) {
+    const titles = labelMap.get(ref.attachedTo) ?? []
+    titles.push(ref.title)
+    labelMap.set(ref.attachedTo, titles)
+  }
+
   const lines = issues.map((issue) => {
     const statusName = statusMap.get(issue.status) ?? 'Unknown'
+    const issueLabels = labelMap.get(issue._id) ?? []
+    const labels = issueLabels.length > 0 ? ` {${formatLabels(issueLabels)}}` : ''
     const due = issue.dueDate != null ? ` | Due: ${formatDate(issue.dueDate)}` : ''
-    return `- **${issue.identifier}** [${statusName}] [${priorityLabel(issue.priority)}]${due}\n  ${issue.title}`
+    return `- **${issue.identifier}** [${statusName}] [${priorityLabel(issue.priority)}]${labels}${due}\n  ${issue.title}`
   })
 
   return `## Issues in ${args.projectIdentifier} (${issues.length})\n\n${lines.join('\n')}`
