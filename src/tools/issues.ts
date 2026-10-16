@@ -8,7 +8,7 @@ import { makeRank } from '@hcengineering/rank'
 import { getConnection } from '../connection'
 import { uploadMarkdownBlob, fetchMarkupText } from './documents'
 import { wrapToolHandler } from '../utils/errors'
-import { priorityLabel, formatDate, formatLabels } from '../utils/format'
+import { priorityLabel, formatDate, formatLabels, formatIssueLine } from '../utils/format'
 import type { z } from 'zod'
 import type {
   ListIssuesSchema,
@@ -56,13 +56,14 @@ export const listIssues = wrapToolHandler<z.infer<typeof ListIssuesSchema>>(asyn
     labelMap.set(ref.attachedTo, titles)
   }
 
-  const lines = issues.map((issue) => {
-    const statusName = statusMap.get(issue.status) ?? 'Unknown'
-    const issueLabels = labelMap.get(issue._id) ?? []
-    const labels = issueLabels.length > 0 ? ` {${formatLabels(issueLabels)}}` : ''
-    const due = issue.dueDate != null ? ` | Due: ${formatDate(issue.dueDate)}` : ''
-    return `- **${issue.identifier}** [${statusName}] [${priorityLabel(issue.priority)}]${labels}${due}\n  ${issue.title}`
-  })
+  const lines = issues.map((issue) => formatIssueLine({
+    identifier: issue.identifier,
+    statusName: statusMap.get(issue.status) ?? 'Unknown',
+    priority: issue.priority,
+    title: issue.title,
+    dueDate: issue.dueDate,
+    labels: labelMap.get(issue._id)
+  }))
 
   return `## Issues in ${args.projectIdentifier} (${issues.length})\n\n${lines.join('\n')}`
 })
