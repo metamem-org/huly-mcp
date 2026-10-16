@@ -1,13 +1,14 @@
 import tracker, { IssuePriority, type Issue } from '@hcengineering/tracker'
 import task from '@hcengineering/task'
 import contact from '@hcengineering/contact'
+import tags from '@hcengineering/tags'
 import { SortingOrder, generateId, type Ref, type DocumentUpdate } from '@hcengineering/core'
 import type { Person } from '@hcengineering/contact'
 import { makeRank } from '@hcengineering/rank'
 import { getConnection } from '../connection'
 import { uploadMarkdownBlob, fetchMarkupText } from './documents'
 import { wrapToolHandler } from '../utils/errors'
-import { priorityLabel, formatDate } from '../utils/format'
+import { priorityLabel, formatDate, formatLabels } from '../utils/format'
 import type { z } from 'zod'
 import type {
   ListIssuesSchema,
@@ -61,11 +62,13 @@ export const getIssue = wrapToolHandler<z.infer<typeof GetIssueSchema>>(async (a
   if (issue == null) throw new Error(`Issue '${args.identifier}' not found.`)
 
   const status = await client.findOne(tracker.class.IssueStatus, { _id: issue.status })
+  const labelRefs = await client.findAll(tags.class.TagReference, { attachedTo: issue._id })
 
   const lines = [
     `## ${issue.identifier}: ${issue.title}`,
     `**Status:** ${status?.name ?? 'Unknown'}`,
     `**Priority:** ${priorityLabel(issue.priority)}`,
+    `**Labels:** ${formatLabels(labelRefs.map((r) => r.title))}`,
     `**Due date:** ${formatDate(issue.dueDate)}`,
     `**Comments:** ${issue.comments ?? 0}`,
     `**Sub-issues:** ${issue.subIssues ?? 0}`,
