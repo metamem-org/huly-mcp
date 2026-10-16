@@ -13,8 +13,8 @@ Connects **Claude Desktop** (and any [MCP](https://modelcontextprotocol.io)-comp
 | **Projects** | `list_projects` | List all projects in the workspace |
 | | `get_project` | Get project details + available statuses |
 | | `create_project` | Create a new tracker project with a unique identifier |
-| **Issues** | `list_issues` | List issues with optional status / priority filters |
-| | `get_issue` | Get full details of an issue (e.g. `PROJ-42`) |
+| **Issues** | `list_issues` | List issues with optional status / priority / label filters |
+| | `get_issue` | Get full details of an issue (e.g. `PROJ-42`) — includes labels |
 | | `create_issue` | Create a new issue |
 | | `update_issue` | Update title, status, priority, assignee, due date, component, milestone |
 | | `delete_issue` | Permanently delete an issue by identifier |
@@ -366,6 +366,52 @@ The Mermaid block renders as a live interactive diagram in Huly's document edito
 
 ---
 
+## Labels in Issue Output
+
+Both `list_issues` and `get_issue` now include labels in their output.
+
+### `list_issues` — label filter
+
+Use the optional `label` parameter to filter issues by label name:
+
+```
+list_issues({
+  projectIdentifier: "PROJ",
+  label: "bug"
+})
+```
+
+**Example output:**
+
+```
+## Issues in PROJ (2)
+
+- **PROJ-42** [In Progress] [High] {bug, frontend}
+  Fix login timeout
+- **PROJ-55** [Todo] [Medium] {bug}
+  Refactor auth middleware
+```
+
+Labels appear in curly braces `{}` after the priority, sorted alphabetically. Issues without labels produce the same line format as before — no braces, no extra fields — so existing parsers remain compatible.
+
+### `get_issue` — labels field
+
+`get_issue` includes a `**Labels:**` line with comma-separated label names (alphabetically sorted), or `None` if the issue has no labels:
+
+```
+## PROJ-42: Fix login timeout
+**Status:** In Progress
+**Priority:** High
+**Labels:** bug, frontend
+**Due date:** 2026-04-01
+**Comments:** 3
+**Sub-issues:** 0
+**Estimation:** 4h
+**Reported time:** 2.5h
+```
+
+---
+
 ## Bulk CSV Import
 
 Import many issues at once from a CSV file — useful for migrating from other tools:
@@ -431,6 +477,10 @@ HULY_FRONT_URL=https://your-huly-instance.com
 ---
 
 ## Changelog
+
+### v0.5.7 — Labels in issue output
+- **Enhancement: `list_issues`** — new optional `label` parameter filters issues by label name; output now includes labels in `{braces}` after the priority
+- **Enhancement: `get_issue`** — output now includes a `**Labels:**` line with comma-separated label names
 
 ### v0.5.6 — delete_document
 - **New: `delete_document`** — permanently delete a document by ID
