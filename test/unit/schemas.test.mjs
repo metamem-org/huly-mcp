@@ -9,8 +9,8 @@ test('ListIssuesSchema: only project → default limit, no filters', () => {
   assert.deepEqual(ListIssuesSchema.parse({ projectIdentifier: 'PROJ' }), { projectIdentifier: 'PROJ', limit: 50 })
 })
 
-test('ListIssuesSchema: status, priority and limit are kept', () => {
-  const args = { projectIdentifier: 'PROJ', status: 'In Progress', priority: 'Urgent', limit: 10 }
+test('ListIssuesSchema: status, priority, label and limit are kept', () => {
+  const args = { projectIdentifier: 'PROJ', status: 'In Progress', priority: 'Urgent', label: 'Bug', limit: 10 }
   assert.deepEqual(ListIssuesSchema.parse(args), args)
 })
 
