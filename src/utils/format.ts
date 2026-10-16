@@ -28,3 +28,18 @@ export function formatLabels (titles: string[]): string {
   if (titles.length === 0) return 'None'
   return [...titles].sort((a, b) => a.localeCompare(b)).join(', ')
 }
+
+export interface IssueLineInput {
+  identifier: string
+  statusName: string
+  priority: number
+  title: string
+  dueDate?: number | null
+  labels?: string[]
+}
+
+export function formatIssueLine (issue: IssueLineInput): string {
+  const labels = issue.labels != null && issue.labels.length > 0 ? ` {${formatLabels(issue.labels)}}` : ''
+  const due = issue.dueDate != null ? ` | Due: ${formatDate(issue.dueDate)}` : ''
+  return `- **${issue.identifier}** [${issue.statusName}] [${priorityLabel(issue.priority)}]${labels}${due}\n  ${issue.title}`
+}

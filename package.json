@@ -36,6 +36,7 @@
     "build": "node scripts/restore-hcengineering-types.js && node --max-old-space-size=4096 node_modules/typescript/bin/tsc",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
+    "test": "npm run build && node --test test/unit/*.test.mjs",
     "setup": "node scripts/setup.js",
     "prepublishOnly": "npm run build",
     "restore-types": "node scripts/restore-hcengineering-types.js",
