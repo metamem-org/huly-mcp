@@ -25,6 +25,17 @@ export const listIssues = wrapToolHandler<z.infer<typeof ListIssuesSchema>>(asyn
 
   const query: Record<string, unknown> = { space: project._id }
 
+  if (args.label != null) {
+    const label = await client.findOne(tags.class.TagElement, {
+      targetClass: tracker.class.Issue,
+      title: args.label
+    })
+    if (label == null) throw new Error(`Label '${args.label}' not found.`)
+
+    const refs = await client.findAll(tags.class.TagReference, { title: args.label })
+    query._id = { $in: refs.map((ref) => ref.attachedTo) }
+  }
+
   if (args.status != null) {
     const status = await client.findOne(tracker.class.IssueStatus, { name: args.status })
     if (status == null) throw new Error(`Status '${args.status}' not found in project '${args.projectIdentifier}'.`)

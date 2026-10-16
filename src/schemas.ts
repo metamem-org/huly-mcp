@@ -14,6 +14,7 @@ export const ListIssuesSchema = z.object({
   projectIdentifier: z.string().describe('Project identifier, e.g. "PROJ"'),
   status: z.string().optional().describe('Filter by status name, e.g. "In Progress"'),
   priority: PriorityEnum.optional().describe('Filter by priority'),
+  label: z.string().optional().describe('Filter by label name, e.g. "Bug"'),
   limit: z.number().int().min(1).max(250).default(50).describe('Max issues to return')
 })
 
