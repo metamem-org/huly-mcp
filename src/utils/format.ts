@@ -23,3 +23,8 @@ export function formatDate (ts: number | null | undefined): string {
 export function priorityLabel (priority: number): string {
   return PRIORITY_LABELS[priority] ?? 'Unknown'
 }
+
+export function formatLabels (titles: string[]): string {
+  if (titles.length === 0) return 'None'
+  return [...titles].sort((a, b) => a.localeCompare(b)).join(', ')
+}
