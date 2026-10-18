@@ -467,6 +467,29 @@ HULY_FRONT_URL=https://your-huly-instance.com
 
 ---
 
+## Development
+
+Install dependencies and build for local development:
+
+```bash
+npm install
+npm run build
+```
+
+Run the server in watch mode while editing source:
+
+```bash
+npm run dev
+```
+
+Run the test suite:
+
+```bash
+npm test
+```
+
+---
+
 ## Architecture
 
 - **Single long-lived WebSocket connection** — connects once per process via `@hcengineering/server-client`, not per tool call (model load takes 1–3 s, so this keeps tools fast)
